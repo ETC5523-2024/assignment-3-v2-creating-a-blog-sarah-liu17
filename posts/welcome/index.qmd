@@ -44,7 +44,7 @@ Grants can provide essential funding for businesses that might not have enough c
 ## Data source and data cleaning steps
 The data is sourced from [TidyTuesday packgae](https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-10-03/readme.md) on github.
 This data set downloaded are then being filtered to only include the posted or 
-forecasted grants with close date in 2024 or after, since the point of interest is about what could be
+forecasting grants with close date in 2024 or after, since the point of interest is about what could be
 useful grant opportunities for our clients. 
 
 The data cleaning steps consist of the following:

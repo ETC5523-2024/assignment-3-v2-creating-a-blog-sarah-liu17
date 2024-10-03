@@ -1,11 +1,11 @@
 ---
 title: "Exploring U.S. Government Grant Opportunities: A Guide for Businesses and Startups"
 author: "Sarah Liu"
-date: "2022-07-18"
-categories: [news]
+date: "2024-10-02"
+categories: [Blogs]
 ---
 
-This is the first post in a Quarto blog. Welcome!
+Take a look at how grant opportunities look like in the U.S.
 
 ![](grant.jpg)
 
@@ -20,6 +20,7 @@ library(ggplot2)
 library(plotly)
 library(conflicted)
 library(gridExtra)
+library(kableExtra)
 conflicts_prefer(dplyr::filter)
 conflicts_prefer(dplyr::select)
 conflicts_prefer(dplyr::slice)
@@ -38,21 +39,22 @@ Grants can provide essential funding for businesses that might not have enough c
 
 
 
-## Data description
+# Data description
 
-### Data source and data cleaning steps
-The data is sourced from TidyTuesday packgae on {github}[https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-10-03/readme.md].
+## Data source and data cleaning steps
+The data is sourced from [TidyTuesday packgae](https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-10-03/readme.md) on github.
 This data set downloaded are then being filtered to only include the posted or 
 forecasted grants with close date in 2024 or after, since the point of interest is about what could be
 useful grant opportunities for our clients. 
 
 The data cleaning steps consist of the following:
 ```{r}
+#| echo: TRUE
 #1: First, filter the relevant data
 grants <- grants %>% filter(opportunity_status!="Closed" & opportunity_status != "Archived")
 grant_detail_24 <- grant_detail %>% filter(current_closing_date_for_applications > 2024)
 
-#2: Making category a variable by pivot longer, and extract the top 5 most popular grants
+#2: Making category a variable by pivot longer 
 grants_long <- grant_detail_24 %>%
   pivot_longer(
     cols = "category_agriculture":"category_other",  
@@ -67,36 +69,37 @@ grants_long <- grants_long %>% mutate(category = gsub("category_", "", category)
 
 ```
 
-## Data dictionary
-- opportunity_id:	Integer ID for this opportunity.
-- opportunity_title	character	Title of the opportunity
-- expected_number_of_awards	integer	Expected count of awards
-- estimated_total_program_funding	double	Estimated funding amount in dollars
-- award_ceiling	double	Maximum individual award amount in dollars
-- award_floor	double	Minimum individual award amount in dollars
-- category: category classified by the function of grant opportunities
+## Data variables
+The main variables used are category of grants, which is classified by the function of grant opportunities.
+Estimated total program funding is another summarising variable to rank the grants, as the more Estimated funding amount in dollars
+for the grants, the more focus they obtain. Award ceiling and award floor represent the maximum and minimum individual award amount in dollars correspondingly. 
 
 # Top 5 grant categories
 
 ```{r}
-#| label: fig-topcat
-#| fig-cap: top 5 grant categories
+#| label: tbl-topcat
+#| tbl-cap: top 5 grant categories
 
-grants_long %>% group_by(category) %>% summarise(count = n()) %>% arrange(desc(count)) %>% head(5) %>% 
-ggplot(aes(x = reorder(category, count), y = count)) +
-  geom_bar(stat = "identity") +
-  coord_flip() +
-  labs(title = "Top 5 Most Popular Grant Categories",
-       x = "Category",
-       y = "Number of Grants") +
-  theme_minimal()
+
+top_categories <- grants_long %>%
+  group_by(category) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count)) %>%
+  head(5)
+
+# Display the table
+top_categories %>%
+  kable(
+    caption = "Top 5 Most Popular Grant Categories",
+    col.names = c("Category", "Number of Grants"), 
+        )
 
 
 
 ```
 
 Let us first have a glance of the categories of grants that are mostly supported.
-It’s clear from @fig-topcat that the health sector dominates U.S. government grant funding in 2024, with over 1,000 grants posted. This reflects a national focus on public health and research into health issues, aiming to improve overall well-being. Innovation in science, including computer science and engineering, also sees substantial investment, indicating the government's emphasis on technological progress. Education, environment, and income security also receive significant attention, reinforcing support for human capital development, environmental protection, and social welfare.
+It’s clear from @tbl-topcat that the health sector dominates U.S. government grant funding in 2024, with 1065 grants posted. This reflects a national focus on public health and research into health issues, aiming to improve overall well-being. Innovation in science, including computer science and engineering, also sees substantial investment, indicating the government's emphasis on technological progress. Education, environment, and income security also receive significant attention, reinforcing support for human capital development, environmental protection, and social welfare.
 
 
 
@@ -123,7 +126,7 @@ ggplot(top_est_fund, aes(x = reorder(opportunity_title, total_funding), y = tota
   labs(title = "Top 7 Most funded Grant Opportunities",
        x = "Grant Opportunity",
        y = "Total funding",
-       caption = "Figure 2: Top 7 grants by total estimated program funding") +
+       caption = "Top 7 grants by total estimated program funding") +
   theme_minimal()
 ```
 
@@ -183,7 +186,7 @@ p1 <- ggplot(grant_means, aes(x = category, y = difference)) +
        y = "Difference (Ceiling - Floor)",
        fill = "Category") +
   scale_y_continuous(labels = scales::comma) +
-  theme(axis.text.x = element_text(angle = 60, hjust = 1),
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
         legend.position = "none")  # Remove the legend for a cleaner look
 
 ggplotly(p1)
@@ -192,7 +195,7 @@ ggplotly(p1)
 
 
 ## Big Winners: Transportation and Environment
-In @fig-awards, Transportation demonstrate a high difference that soars to around $300 million. This means if you're working on transportation-related projects, you're looking at some serious funding potential. Infrastructure projects, for example, often require large sums, and this category reflects that.
+In @fig-awards, transportation demonstrate the highest difference that soars to around $300 million. This means if you're working on transportation-related projects, you're looking at some serious funding potential. Infrastructure projects, for example, often require large sums, and this category reflects that.
 
 It is not surprising that Environment follows as another key category with a substantial difference, over $100 million. If you're working in areas like renewable energy or environmental protection, this is where the big bucks are. 
 Energy also shows a notable difference, making it another promising area if your work involves innovative energy solutions.
@@ -204,24 +207,30 @@ For categories like education, employment, and science, the differences between 
 If your work touches on consumer protection, disaster relief, regional development, or housing, there’s still meaningful funding here, but with more modest ceilings. These categories probably support more focused or smaller-scale projects, but they should not be ignored since there’s still plenty of room to explore.
 
 ## Takeaways:
-Transportation and Environment: If your project requires big budgets, these are the categories to watch. They’re where the largest funding gaps are, offering major potential if your project aligns.
-Smaller Project? Categories like education and employment are more stable with consistent funding, making them ideal for smaller, well-defined projects.
-So, depending on your project’s needs, focusing on high-ceiling categories can give you a competitive edge when it comes to scaling, while smaller projects could thrive in categories offering more consistent funding. Knowing where the money is concentrated helps you strategize better and apply for the right grants!
+**Transportation and Environment**: If your project requires big budgets, these are the categories to watch. They’re where the largest funding gaps are, offering major potential if your project aligns.
 
-## What's next?
-By examining top funding categories and individual high-value grants, the report offers insights into where the US government allocates the most resources. The results indicate a substantial focus on health, environment, education, and infrastructure, with key opportunities for companies in these sectors to secure significant funding. The distribution of grant award ceilings and floors are also presented to guide companies in applying for grants that align with their financial needs.
+**Smaller Project**: Categories like education and employment are more stable with consistent funding, making them ideal for smaller, well-defined projects.
+
+So, depending on your project’s needs, focusing on high-ceiling categories can give you a competitive edge when it comes to scaling, while smaller projects could thrive in categories offering more consistent funding. Knowing where the money is concentrated helps you strategise better and apply for the right grants!
+
 
 # Applying for Grants: What You Need to Know
 When applying for grants, keep in mind that competition can be fierce, so it's important to align your project with government priorities. Here are some tips to keep in mind:
 
-Target High-Priority Areas: As seen from the data, health, education, and environmental projects have substantial funding. Focus on these areas if they align with your business goals.
-Look at Award Sizes: Not every grant is going to meet your funding needs. Some grants are tailored for larger, well-established businesses, while others may be a better fit for startups or smaller projects.
-Understand the Application Process: Each grant has its own application requirements. Make sure you’re thoroughly prepared to meet deadlines and submit all necessary documents.
-Stay Innovative: The government is interested in innovative solutions, whether in technology, infrastructure, or public health. Show how your project stands out from the crowd.
+**Target High-Priority Areas**: As seen from the data, health, education, and environmental projects have substantial funding. Focus on these areas if they align with your business goals.
 
-Government grants play a pivotal role in distributing funding across key sectors of the U.S. economy. With billions of dollars allocated annually, it’s essential for businesses and organizations to identify where the government focuses its investments to make informed decisions on funding applications. This post explores the landscape of U.S. government grants in 2024, with a focus on identifying the top grant categories and the most well-funded individual opportunities.
 
-The U.S. government allocates a substantial budget to support a variety of projects through grant programs, with a particular focus on health, education, environment, and infrastructure. Start-ups and organizations lacking sufficient cash flow, or those considered high risk by traditional funding sources, can benefit greatly from these grants.
+**Look at Award Sizes**: Not every grant is going to meet your funding needs. Some grants are tailored for larger, well-established businesses, while others may be a better fit for start-ups or smaller projects.
+
+**Understand the Application Process**: Each grant has its own application requirements. Make sure you’re thoroughly prepared to meet deadlines and submit all necessary documents.
+
+**Stay Innovative**: The government is interested in innovative solutions, whether in technology, infrastructure, or public health. Show how your project stands out from the crowd.
+
+
+Government grants play a pivotal role in distributing funding across key sectors of the U.S. economy. With billions of dollars allocated annually, it’s essential for businesses and organizations to identify where the government focuses its investments to make informed decisions on funding applications. Knowing where the money is concentrated helps you craft a smarter grant application strategy. Whether you're aiming for big bucks in infrastructure or seeking steady support for an education initiative, aligning your projects with the right categories is key to securing funding.
+
+Ready to apply for a grant? Take a closer look at the categories and programs mentioned in this guide, and start preparing your application today!
+
 
 ## References
 Centre for public impact. “National Clean Investment Fund | US EPA.” US EPA, 10 July 2023,                                                     www.epa.gov/greenhouse-gas-reduction-fund/national-clean-investment-fund#:~:text=Under%20the%20%2414%20billion%20National. 
@@ -230,31 +239,9 @@ Centre for public impact. “National Clean Investment Fund | US EPA.” US EPA,
 
 Department of Defence. “Defense Production Act Title III Expansion of Domestic Production 
         Capability and Capacity | Research Funding.” Duke.edu, 12 July 2024,                                                                   researchfunding.duke.edu/defense-production-act-title-iii-expansion-domestic-production-capability-and-capacity
+        
+        
 
-
-```{r, fig.width=12, fig.height=8, out.width='100%'}
-top_funding_award <- grant_detail_24 %>%
-  group_by(opportunity_id) %>%
-  summarise(total_no = sum(expected_number_of_awards, na.rm = TRUE)) %>%
-  arrange(desc(total_no)) %>%
-  head(5)
-
- top_funding_award <- top_funding_award %>%
-  inner_join(grants, by = "opportunity_id") %>%
-  select(opportunity_title, total_no) 
-  ggplot(top_funding_award, aes(x = reorder(opportunity_title, total_no), y = total_no)) +
-  geom_bar(stat = "identity") +
-  coord_flip() +
-  labs(title = "Top 5 Grant Opportunities by expected number of awards",
-       x = "Grant Opportunity",
-       y = "Expected number of awards") +
-  theme_minimal()
-```
-
-
-```{r}
-grants_long %>% filter(category == "employment") %>% left_join(grant_detail_24, by = "opportunity_id") %>% group_by(funding_opportunity_title.x) %>% mutate(n = sum(estimated_total_program_funding.x)) %>% arrange(desc(n)) %>% head(10) %>% select(funding_opportunity_title.x, n)
-```
 
 
 

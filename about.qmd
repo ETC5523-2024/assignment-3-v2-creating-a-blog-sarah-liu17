@@ -2,7 +2,7 @@
 title: "About"
 image: photo.jpg
 about:
-  template: jolla
+  template: trestles
   links:
     - icon: github
       text: Github
@@ -26,15 +26,21 @@ I am eager to leverage my skills to translate data into actionable insights that
 
 # Hobbies
 
-Talking about non-academic life, I enjoy quiet a lot of interests. 
+Talking about non-academic life, I enjoy quiet a lot of interests:
+
 - Music: I love listening to all kinds of songs and play piano for more than 10 years, still exploring more themes I can play 
 like jazz music other than classical pieces. 
+
 - Badminton: I was in the high school badminton team for two years. 
+
 - Ski: I would also go skiing every winter, it is so excited to fly down the slope to feel the wind and snow. 
+
 - Horse-riding: Another sports I also like is horse-riding, building a connection with the horse is such a 
 special experience. 
+
 - Travel: In holidays, I love to travel to countries I have not been 
 to, hoping I could experience more different sides of the world. 
+
 - Photography: I am also seeking to take some fabulous photos where possible!
 
 
